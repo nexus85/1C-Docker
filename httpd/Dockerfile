@@ -176,7 +176,10 @@ COPY httpd-foreground /usr/local/bin/
 VOLUME /usr/local/apache2
 
 
+WORKDIR $HTTPD_PREFIX
 EXPOSE 80
 EXPOSE 443
 
-CMD ["httpd-foreground"]
+#CMD /usr/sbin/apache2ctl -D FOREGROUND
+
+CMD ["/usr/local/apache2/httpd -DFOREGROUND"]
