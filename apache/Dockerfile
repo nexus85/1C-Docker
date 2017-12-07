@@ -1,27 +1,58 @@
-#ws_1c_apache2.2
+FROM ubuntu:16.04
 
-FROM ubuntu:12.04
-MAINTAINER trantor77
-
+# install dependencies
 RUN apt-get update \
-    && apt-get install -y apache2
+	&& apt-get install -y --no-install-recommends \
+ 	apache2 \ 
+	&& rm -r /var/lib/apt/lists/*
 
-ADD deb64.tar.gz /tmp
-#WORKDIR /tmp
-RUN rm /tmp/*-nls_*.* \
-    && dpkg -i /tmp/* \
-    && rm /tmp/*
 
-RUN /opt/1C/v8.3/x86_64/webinst -apache22 \
-#   -wsdir 1c_buh -dir /wwwroot/1c_pub  \
-    -wsdir 1c_buh -dir /var/www  \ 
-    -connstr "Srvr=127.0.0.1;Ref=test;" \ 
-    -confPath /etc/apache2/httpd.conf
 
-#WORKDIR /
-#ADD start.sh /start.sh
-#RUN chmod +x /start.sh
-#CMD /start.sh
-CMD /usr/sbin/apache2ctl -D FOREGROUND
 
-EXPOSE 80
+
+
+
+
+
+
+
+
+ENV PLATFORM_VERSION=83
+ENV SERVER_VERSION=8.3.10-2466
+
+ADD *.deb /tmp/
+
+RUN dpkg --install /tmp/1c-enterprise$PLATFORM_VERSION-common_${SERVER_VERSION}_amd64.deb \
+ && dpkg --install /tmp/1c-enterprise$PLATFORM_VERSION-server_${SERVER_VERSION}_amd64.deb \
+ && dpkg --install /tmp/1c-enterprise$PLATFORM_VERSION-ws_${SERVER_VERSION}_amd64.deb \
+ && rm /tmp/*.deb \
+ && mkdir --parent /var/log/1C /home/usr1cv8/.1cv8/1C/1cv8/conf \
+ && chown --recursive usr1cv8:grp1cv8 /var/log/1C /home/usr1cv8
+
+
+#ADD *.deb /tmp/
+#RUN dpkg -i /tmp/*
+#    && rm /tmp/*
+
+
+#RUN dpkg --configure -a
+#RUN apt-get update \
+#	&& apt-get install -y -f \ 
+#	&& rm -r /var/lib/apt/lists/*
+
+
+VOLUME /etc/apache2/
+VOLUME /var/www/html
+RUN a2enmod rewrite
+COPY httpd-foreground /home/
+RUN chmod +x /home/httpd-foreground
+
+CMD ["./home/httpd-foreground"]
+# Default command	
+#CMD ["apachectl", "-D", "FOREGROUND"]
+
+
+
+# Ports
+EXPOSE 80 443
+
