@@ -28,12 +28,14 @@ RUN localedef --inputfile ru_RU --force --charmap UTF-8 --alias-file /usr/share/
 ENV LANG ru_RU.utf8
 
 ADD *.deb /tmp/
-
+ADD nethasp.ini /tmp/
 RUN dpkg --install /tmp/1c-enterprise$PLATFORM_VERSION-common_${SERVER_VERSION}_amd64.deb \
  && dpkg --install /tmp/1c-enterprise$PLATFORM_VERSION-server_${SERVER_VERSION}_amd64.deb \
  && dpkg --install /tmp/1c-enterprise$PLATFORM_VERSION-ws_${SERVER_VERSION}_amd64.deb \
  && rm /tmp/*.deb \
  && mkdir --parent /var/log/1C /home/usr1cv8/.1cv8/1C/1cv8/conf \
+ && mkdir /opt/1C/v8.3/x86_64/conf \
+ && cp /tmp/nethasp.ini /opt/1C/v8.3/x86_64/conf \
  && chown --recursive usr1cv8:grp1cv8 /var/log/1C /home/usr1cv8
 
 COPY container/docker-entrypoint.sh /
