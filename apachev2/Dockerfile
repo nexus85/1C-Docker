@@ -44,11 +44,14 @@ RUN dpkg --install /tmp/1c-enterprise$PLATFORM_VERSION-common_${SERVER_VERSION}_
 VOLUME /etc/apache2/
 VOLUME /var/www/html
 RUN a2enmod rewrite
+COPY httpd-foreground /home/
+RUN chmod +x /home/httpd-foreground
 
-
-
+CMD ["./home/httpd-foreground"]
 # Default command	
-CMD ["apachectl", "-D", "FOREGROUND"]
+#CMD ["apachectl", "-D", "FOREGROUND"]
+
+
 
 # Ports
 EXPOSE 80 443
